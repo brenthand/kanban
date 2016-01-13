@@ -53,7 +53,7 @@ $password = 'Xyzqwe12';
 try {
     $db = new PDO($dsn, $username, $password); // also allows an extra parameter of configuration
 	if(isset($_REQUEST['action'])){
-		if($_REQUEST['action']=='newtask') {
+		if($_REQUEST['action']=='update') {
 			$stmnt = $db->prepare('INSERT INTO tasks (title, status, assignedto, size, description, sprint) VALUES( :title, :status, :assignedto, :size, :description, :sprint);');
 			$stmnt->bindParam(':title', $_REQUEST['title'], PDO::PARAM_STR);
 			$stmnt->bindParam(':status', $_REQUEST['status'], PDO::PARAM_STR);
@@ -63,7 +63,9 @@ try {
 			$stmnt->bindParam(':sprint', $_REQUEST['sprint'], PDO::PARAM_STR);
 			$stmnt->execute();
 		}
+		
 	}
+	
 	echo "<script>$('#confirm').modal('show');</script>";
 } catch(PDOException $e) {
     die('Could not connect to the database:<br/>' . $e);
@@ -91,25 +93,7 @@ try {
             
         </nav>
 
-		<div id="confirm" class="modal fade" role="dialog">
-						  <div class="modal-dialog">
-
-							<!-- Modal content-->
-							<div class="modal-content">
-							  <div class="modal-header">
-								<button type="button" class="close" data-dismiss="modal">&times;</button>
-								<h4 class="modal-title">Success!</h4>
-							  </div>
-							  <div class="modal-body">
-								<h4> Updated task!</h4>
-							  </div>
-							  <div class="modal-footer">
-								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-							  </div>
-							</div>
-
-						  </div>
-						</div>
+		
         <div id="page-wrapper">
             <div class="row">
                 <div class="col-lg-12">
@@ -119,112 +103,45 @@ try {
             </div>
             <!-- /.row -->
             <div class="row">
-                <div class="col-lg-12">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#newtask">Add new task <span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
-                        </div>
-						<!-- New TAsk modal start -->
-						<div id="newtask" class="modal fade" role="dialog">
-						  <div class="modal-dialog">
-
-							<!-- Modal content-->
-							<div class="modal-content">
-							  <div class="modal-header">
-								<button type="button" class="close" data-dismiss="modal">&times;</button>
-								<h4 class="modal-title">New Task</h4>
-							  </div>
-							  <div class="modal-body">
-								<form action="index.php?action=newtask" method="post">
+                
+                  <form action="item.php?action=update" method="post">
+							<?php 	
+								$statement = $db->prepare('SELECT * FROM tasks WHERE taskid = :taskid;');
+								$statement->bindParam(':taskid', $_REQUEST['taskid'], PDO::PARAM_INT);
+								$statement->execute();
+								$item = $statement->Fetch();
+								/*$item = $db->query('SELECT * FROM tasks WHERE taskid = $_REQUEST[taskid];'); */
+								
+								
+									
+							?>
 									<div class="form-group">
 										<label for="title">Title</label>
-										<input name="title" type="text" class="form-control" id="title" placeholder="title...">
+										<input name="title" type="text" class="form-control" id="title" value="<?php echo $item['title'];  ?>">
 									</div>
 									<div class="form-group">
 										<label for="status">Status</label>
-										<input name="status" type="text" class="form-control" id="status" placeholder="Status...">
+										<input name="status" type="text" class="form-control" id="status" value="<?php echo $item['status'];  ?>">
 									</div>
 									<div class="form-group">
 										<label for="assignedto">Assigned To</label>
-										<input name="assignedto" type="text" class="form-control" id="assignedto" placeholder="Name...">
+										<input name="assignedto" type="text" class="form-control" id="assignedto" value="<?php echo $item['assignedto'];  ?>">
 									</div>
 									<div class="form-group">
 										<label for="size">Size</label>
-										<input name="size" type="number" class="form-control" id="size" >
+										<input name="size" type="number" class="form-control" id="size" value="<?php echo $item['size'];  ?>">
 									</div>
 									<div class="form-group">
 										<label for="Description">Description</label>
-										<input name="description" type="text" class="form-control" id="Description" placeholder="Description...">
+										<input name="description" type="text" class="form-control" id="Description" value="<?php echo $item['description'];  ?>">
 									</div>
 									<div class="form-group">
 										<label for="Sprint`">Sprint</label>
-										<input name="sprint" type="number" class="form-control" id="Sprint">
+										<input name="sprint" type="number" class="form-control" id="Sprint" value="<?php echo $item['sprint'];  ?>">
 									</div>
 									<button type="submit" class="btn btn-success">Submit</button>
 								</form>
-							  </div>
-							  <div class="modal-footer">
-								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-							  </div>
-							</div>
-
-						  </div>
-						</div>
-
-<!-- New task Modal content end -->
-						
-						
-                        <!-- /.panel-heading -->
-                        <div class="panel-body">
-                            <div class="dataTable_wrapper">
-                                <table class="table table-striped table-bordered table-hover" id="dataTables-example">
-                                    <thead>
-                                        <tr>
-											<th>Title</th>
-                                            <th>Status</th>
-                                            <th>Assigned To</th>
-                                            <th>Size</th>
-                                            <th>Description</th>
-                                            <th>Sprint</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-									<?php
-										
-										$tasks = $db->query('SELECT * FROM tasks');
-									
-										foreach($tasks->FetchAll() as $task) {
-											
-											echo '<tr class="odd gradeX">';
-                                            echo '<td><a href="item.php?taskid=' . $task['taskid'] . '">' . $task['title'] . '</a></td>';
-                                            echo '<td>' . $task['status'] . '</td>';
-                                            echo '<td>' . $task['assignedto'] . '</td>';
-                                            echo '<td class="center">' . $task['size'] . '</td>';
-											echo '<td>' . $task['description'] . '</td>';
-                                            echo '<td class="center">' . $task['sprint'] . '</td>';
-											echo '</tr>';
-										}
-									?>
-                                        <tr class="odd gradeX">
-                                            <td><a href="#">Issue 1</a></td>
-                                            <td>Not Started</td>
-                                            <td>tom</td>
-                                            <td class="center">4</td>
-											<td>Issue with program</td>
-                                            <td class="center">2</td>
-                                        </tr>
-                                        
-                                    </tbody>
-                                </table>
-                            </div>
-                            <!-- /.table-responsive -->
-                            
-                        </div>
-                        <!-- /.panel-body -->
-                    </div>
-                    <!-- /.panel -->
-                </div>
-                <!-- /.col-lg-12 -->
+                
             </div>
         </div>
         <!-- /#page-wrapper -->
