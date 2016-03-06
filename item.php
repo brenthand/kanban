@@ -1,3 +1,7 @@
+<?php
+require_once('authenticate.php');
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -25,10 +29,10 @@
 
     <!-- Custom CSS -->
     <link href="css/sb-admin-2.css" rel="stylesheet">
-	
+
 	<!-- jQuery -->
     <script src="js/jquery.min.js"></script>
-	
+
 	<!-- Bootstrap Core JavaScript -->
     <script src="js/bootstrap.min.js"></script>
 
@@ -54,18 +58,33 @@ try {
     $db = new PDO($dsn, $username, $password); // also allows an extra parameter of configuration
 	if(isset($_REQUEST['action'])){
 		if($_REQUEST['action']=='update') {
-			$stmnt = $db->prepare('INSERT INTO tasks (title, status, assignedto, size, description, sprint) VALUES( :title, :status, :assignedto, :size, :description, :sprint);');
+      $stmnt = $db->prepare('UPDATE tasks SET title=:title, status=:status, assignedto=:assignedto, size=:size, description=:description, sprint=:sprint WHERE id=:id;');
 			$stmnt->bindParam(':title', $_REQUEST['title'], PDO::PARAM_STR);
 			$stmnt->bindParam(':status', $_REQUEST['status'], PDO::PARAM_STR);
 			$stmnt->bindParam(':assignedto', $_REQUEST['assignedto'], PDO::PARAM_STR);
 			$stmnt->bindParam(':size', $_REQUEST['size'], PDO::PARAM_STR);
 			$stmnt->bindParam(':description', $_REQUEST['description'], PDO::PARAM_STR);
 			$stmnt->bindParam(':sprint', $_REQUEST['sprint'], PDO::PARAM_STR);
+      $stmnt->bindParam(':id', $_REQUEST['id'], PDO::PARAM_STR);
 			$stmnt->execute();
+
+      header('Location: '.'item.php?taskid='.$_REQUEST['id']);
+      die();
 		}
-		
+    else if($_REQUEST['action']=='remove') {
+      $stmnt = $db->prepare('DELETE FROM tasks WHERE id=:id;');
+
+      $stmnt->bindParam(':id', $_REQUEST['id'], PDO::PARAM_STR);
+			$stmnt->execute();
+
+      header('Location: '.'index.php');
+      die();
+		}
+
+
+
 	}
-	
+
 	echo "<script>$('#confirm').modal('show');</script>";
 } catch(PDOException $e) {
     die('Could not connect to the database:<br/>' . $e);
@@ -86,35 +105,37 @@ try {
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="agile-board.html"">Agile Board v0.1</a>
+                <a class="navbar-brand" href="index.php">Kanban v1.0</a>
             </div>
             <!-- /.navbar-header -->
 
-            
+
         </nav>
 
-		
+
         <div id="page-wrapper">
             <div class="row">
                 <div class="col-lg-12">
-                    <h1 class="page-header">Tasks</h1>
+                    <h1 class="page-header">Task Details</h1>
                 </div>
                 <!-- /.col-lg-12 -->
             </div>
             <!-- /.row -->
             <div class="row">
-                
+
                   <form action="item.php?action=update" method="post">
-							<?php 	
-								$statement = $db->prepare('SELECT * FROM tasks WHERE taskid = :taskid;');
+							<?php
+								$statement = $db->prepare('SELECT * FROM tasks WHERE id = :taskid;');
 								$statement->bindParam(':taskid', $_REQUEST['taskid'], PDO::PARAM_INT);
 								$statement->execute();
 								$item = $statement->Fetch();
 								/*$item = $db->query('SELECT * FROM tasks WHERE taskid = $_REQUEST[taskid];'); */
-								
-								
-									
+
+
+
 							?>
+              <div class="col-md-1"></div>
+              <div class="col-md-6">
 									<div class="form-group">
 										<label for="title">Title</label>
 										<input name="title" type="text" class="form-control" id="title" value="<?php echo $item['title'];  ?>">
@@ -139,9 +160,20 @@ try {
 										<label for="Sprint`">Sprint</label>
 										<input name="sprint" type="number" class="form-control" id="Sprint" value="<?php echo $item['sprint'];  ?>">
 									</div>
+
+
 									<button type="submit" class="btn btn-success">Submit</button>
+
 								</form>
-                
+                <div style="float: right">
+                <form action="item.php?action=remove" method="post">
+                  <input type="hidden" name="id" value="<?php echo $item['id'];  ?>">
+                  <button class="btn btn-danger">Remove</button>
+                </form>
+
+              </div>
+              </div>
+
             </div>
         </div>
         <!-- /#page-wrapper -->
@@ -149,9 +181,9 @@ try {
     </div>
     <!-- /#wrapper -->
 
-    
 
-    
+
+
 
     <!-- Metis Menu Plugin JavaScript -->
     <script src="js/metisMenu.min.js"></script>
@@ -170,6 +202,11 @@ try {
     });
     </script>
 
+    <footer class="footer">
+      <div class="footer-container">
+        <p>QWS&copy;</p>
+      </div>
+    </footer>
 </body>
 
 </html>

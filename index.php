@@ -1,3 +1,7 @@
+<?php
+require_once('authenticate.php');
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -25,10 +29,10 @@
 
     <!-- Custom CSS -->
     <link href="css/sb-admin-2.css" rel="stylesheet">
-	
+
 	<!-- jQuery -->
     <script src="js/jquery.min.js"></script>
-	
+
 	<!-- Bootstrap Core JavaScript -->
     <script src="js/bootstrap.min.js"></script>
 
@@ -63,6 +67,7 @@ try {
 			$stmnt->bindParam(':sprint', $_REQUEST['sprint'], PDO::PARAM_STR);
 			$stmnt->execute();
 		}
+
 	}
 	echo "<script>$('#confirm').modal('show');</script>";
 } catch(PDOException $e) {
@@ -84,11 +89,11 @@ try {
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="agile-board.html"">Agile Board v0.1</a>
+                <a class="navbar-brand" href="index.php">Kanban Board v1.0</a>
             </div>
             <!-- /.navbar-header -->
 
-            
+
         </nav>
 
 		<div id="confirm" class="modal fade" role="dialog">
@@ -172,8 +177,8 @@ try {
 						</div>
 
 <!-- New task Modal content end -->
-						
-						
+
+
                         <!-- /.panel-heading -->
                         <div class="panel-body">
                             <div class="dataTable_wrapper">
@@ -190,35 +195,36 @@ try {
                                     </thead>
                                     <tbody>
 									<?php
-										
+
 										$tasks = $db->query('SELECT * FROM tasks');
-									
+
 										foreach($tasks->FetchAll() as $task) {
-											
+
 											echo '<tr class="odd gradeX">';
-                                            echo '<td><a href="item.php?taskid=' . $task['taskid'] . '">' . $task['title'] . '</a></td>';
+                                            echo '<td><a href="item.php?taskid=' . $task['id'] . '">' . $task['title'] . '</a></td>';
                                             echo '<td>' . $task['status'] . '</td>';
                                             echo '<td>' . $task['assignedto'] . '</td>';
                                             echo '<td class="center">' . $task['size'] . '</td>';
 											echo '<td>' . $task['description'] . '</td>';
                                             echo '<td class="center">' . $task['sprint'] . '</td>';
+
 											echo '</tr>';
 										}
 									?>
-                                        <tr class="odd gradeX">
+                                        <!--<tr class="odd gradeX">
                                             <td><a href="#">Issue 1</a></td>
                                             <td>Not Started</td>
                                             <td>tom</td>
                                             <td class="center">4</td>
 											<td>Issue with program</td>
                                             <td class="center">2</td>
-                                        </tr>
-                                        
+                                        </tr>-->
+
                                     </tbody>
                                 </table>
                             </div>
                             <!-- /.table-responsive -->
-                            
+
                         </div>
                         <!-- /.panel-body -->
                     </div>
@@ -232,9 +238,9 @@ try {
     </div>
     <!-- /#wrapper -->
 
-    
 
-    
+
+
 
     <!-- Metis Menu Plugin JavaScript -->
     <script src="js/metisMenu.min.js"></script>
@@ -252,7 +258,11 @@ try {
         });
     });
     </script>
-
+<footer class="footer">
+  <div class="footer-container">
+    <p>QWS&copy;</p>
+  </div>
+</footer>
 </body>
 
 </html>
