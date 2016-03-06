@@ -1,4 +1,5 @@
 <?php
+require_once('common.php');
 require_once('authenticate.php');
 ?>
 
@@ -51,11 +52,7 @@ require_once('authenticate.php');
 <body>
 
 <?php
-$dsn = 'mysql:dbname=agileboard;host=localhost;port=3306';
-$username = 'root';
-$password = 'Xyzqwe12';
-try {
-    $db = new PDO($dsn, $username, $password); // also allows an extra parameter of configuration
+
 	if(isset($_REQUEST['action'])){
 		if($_REQUEST['action']=='update') {
       $stmnt = $db->prepare('UPDATE tasks SET title=:title, status=:status, assignedto=:assignedto, size=:size, description=:description, sprint=:sprint WHERE id=:id;');
@@ -86,9 +83,7 @@ try {
 	}
 
 	echo "<script>$('#confirm').modal('show');</script>";
-} catch(PDOException $e) {
-    die('Could not connect to the database:<br/>' . $e);
-}
+
 
 
 
@@ -97,20 +92,36 @@ try {
     <div id="wrapper">
 
         <!-- Navigation -->
-        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
-            <div class="navbar-header">
+        <nav class="navbar navbar-default">
+    <div class="container-fluid">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="index.php">Kanban v1.0</a>
-            </div>
-            <!-- /.navbar-header -->
+                <a class="navbar-brand" href="index.php">Kanban Board v1.0</a>
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="http://quantumwebsystems.com">QWS<span class="sr-only">(current)</span></a></li>
+        <li><a href="logout.php">Logout</a></li>
+        <!--<li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">Action</a></li>
+            <li><a href="#">Another action</a></li>
+            <li><a href="#">Something else here</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">Separated link</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">One more separated link</a></li>
+          </ul>
+        </li>-->
 
-
-        </nav>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
 
 
         <div id="page-wrapper">
